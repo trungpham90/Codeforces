@@ -1,0 +1,706 @@
+///////////////////////////////////////////////////////////////////////////////////////////
+Note : 	Careful of overflow ! out of range!!!
+		Think back and forth !	
+		Tarjan SCC need to check for the component in the stack only!!!!
+
+///////////////////////////////////////////////////////////////////////////////////////////
+1)To count palindrome number with lower and upper bound:
+
+public class PalindromicNumbers {
+
+    public int countPalNums(int lower, int upper) {
+        return cal(upper) - cal(lower - 1);
+    }
+
+    public int cal(int bound) {
+        int result = 0;
+        for (int i = 0; i < 100000; i++) {
+            String temp = "" + i + reverse(i / 10); //Palindrome with odd number of digit;
+            long val = Long.parseLong(temp);
+            if (val > bound) {
+                break;
+            }
+            result++;
+            temp = "" + i + reverse(i);//  Palindorme with even number of digit
+            val = Long.parseLong(temp);
+            if (val <= bound) {
+                result++;
+            }
+
+        }
+        return result;
+    }
+
+    public String reverse(int val) {
+        StringBuilder builder = new StringBuilder();
+        while (val > 0) {
+            builder.append(val % 10);
+            val /= 10;
+        }
+        return builder.toString();
+    }
+
+    public static void main(String[] args) {
+        System.out.println(new PalindromicNumbers().countPalNums(1, 1000000000));
+    }
+}
+///////////////////////////////////////////////////////////////////////////////////////////
+2) Euclid algorithm
+
+- m'm + n'n = gcd(m,n)
+-> r = n mod m -> r'r + m'm = gcd(r,m)
+Prove:
+r = n - m[n/m] -> r'(n - m[n/m]) + m'm = (m' - [n/m]r') m + r'n
+
+///////////////////////////////////////////////////////////////////////////////////////////
+3) Josepheus problem
+
+- Find the survivor when qth perrson is eliminated :
+	D = 1
+	while D <=(q - 1)*n 
+		D = ceiling((q/q-1)*D)
+	Jq(n) = q*n + 1 - D
+
+- n mod m = n - m*floor(n/m)
+	+ c(x mod y) = cx mod cy
+
+- Divide n into m group -> number of people in kth group ceiling((n - k + 1)/m)
+	+ n = ceiling (n/m) + ceiling (n - 1/ m)  + ... + ceiling (n - m + 1/m)
+	+ n = floor(n/m) + floor (n + 1/m) +... + floor(n + m - 1/m)
+	
+///////////////////////////////////////////////////////////////////////////////////////////
+4) Number theory
+
+- Factorial function grow exponentially
+
+- Largest power of p -> divide n!
+  ep(n!) = floor(n/p) + floor(n/p2) + floor(n/p3) ...
+		 = Sum(k >= 1) floor(n/pk)
+
+- Relative prime m , n
+	+ k relative prime m & k relative prime n -> k relative prime m*n 
+	+ Stern brocot tree -> all fractions m/n (m relative prime n) 
+	-> Start with (0/1 , 1/0) -> insert m + m'/ n + n' between two adjacent fractions m/n & m'/n'
+  
+  
+- Congruence x :
+	+ a # b (mod m) <-> a mod m = b mod m
+	+ a # b (mod m) <-> a - b is multiple of m
+	
+	+ a # b & c # d -> a + c # b + d (mod m)
+	+ a # b & c # d -> a - c # b - d (mod m)
+	+ a # b & c # d -> ac # bd (mod m) (integer b,c) -> a # b -> a pow n # b pow n (mod m)
+	
+	+ ad # bd (mod m) <-> a # b (mod m) (m , d relative prime)
+	+ ad # bd (mod md) <-> a # b (mod m)
+	+ ad # bd (mod m) <-> a # b (mod m / gcd (m,d))	
+
+- Totient of m - g(m) How many of integers (0,1,.. m-1) relative prime to m
+	g(m) = m * Mul of each p\m ( 1- 1/p) 
+	
+- (n - 1)! congruent to -1 (mod n) <-> n is prime (Wilson theorem)
+
+-  Chinese remainder theorem
+	let m1, m2,m3 ..., mr be integers with mj relative prime mk for 1 <= j < k <= r; let m =
+	m1.m2....mr; and let a1, a2, ... , ar, A be integers. Then there is exactly one
+	integer a such that
+	a congruent to ak (mod mk) for 1 <= k <= r and A <= a < A +m:
+
+- (x+y)mod n=(x mod n+y mod n) mod n.
+  (x-y)mod n=(x mod n-y mod n)+ord(x mod n<y mod n)*n  
+  (x*y)mod n=(x mod n)*(y mod n)mod n.
+
+- Fermat little theorem : a^(p-1) # 1 (mod p) , a and p coprime. -> a^(p - 2) # 1/a (mod p)
+
+/////////////////////////////////////////////////////////////////////////////////////////// 
+5) Find number of prime divider of N
+  int x = N;
+  int count = 0;
+  for(int i = 2; i *i < x; i++){
+		while(x % i == 0){
+			count++;
+			x /= i;
+		}
+  }
+  if(x != 1){
+	count++;
+  }
+////////////////////////////////////////////////////////////////////////////////////////// 
+6)Fenwick (Binary indexed) Tree 
+	static class FT {
+
+        int[] data;
+
+        FT(int n) {
+            data = new int[n];
+        }
+
+        void update(int index, int val) {
+            // System.out.println("UPDATE INDEX " + index);
+            while (index < data.length) {
+                data[index] += val;
+                index += index & (-index);
+
+                //    System.out.println("NEXT " +index);
+            }
+        }
+
+        int get(int index) {
+            //  System.out.println("GET INDEX " + index);
+            int result = 0;
+            while (index > 0) {
+                result += data[index];
+                index -= index & (-index);
+                // System.out.println("BACK " + index);
+            }
+            return result;
+        }
+    }
+///////////////////////////////////////////////////////////////////////////////////////// 
+7)Center of a tree
+a) Method 1
+Keep removing leaf nodes from your tree until you are left with a single node (if left with two nodes, remove any one of them). That node minimizes the maximum distance from it to every other node.
+
+Example:
+
+   *                 *              
+  / \                 \
+ *   *                 *              *
+      \                 \              \
+       *      =>         *     =>       *    =>   *
+        \                 \                     
+         *                 *
+          \
+           *
+To implement this in linear time, insert all initial leaf nodes in a FIFO queue. For each node, also store the number of its children. When removing an element from your queue, decrease its parent's number of children. If this number becomes zero, insert the parent into the queue.
+
+b) Method 2
+For any tree there is a vertex whose subtrees have a sizes not more than a half of number vertices in original tree. We can find it in the following way:
+	- Assign any vertex to current.
+
+    - If current satisfies to condition, we find it.
+
+    - Otherwise there is only one huge subtree. Assign root of this huge subtree to current and go to step 2.
+///////////////////////////////////////////////////////////////////////////////////////// 
+8)Next permutation
+public boolean nextPer(int[] data) {
+    int i = data.length - 1;
+    while (i > 0 && data[i] < data[i - 1]) {
+        i--;
+    }
+    if (i == 0) {
+        return false;
+    }
+    int j = data.length - 1;
+    while (data[j] < data[i - 1]) {
+        j--;
+    }
+    int temp = data[i - 1];
+    data[i - 1] = data[j];
+    data[j] = temp;
+    Arrays.sort(data, i, data.length);
+    return true;
+}
+///////////////////////////////////////////////////////////////////////////////////////// 
+9) Fibonacci number
+
+Fn = ((1 + (5)^1/2 ) / 2)^n / (5)^1/2
+///////////////////////////////////////////////////////////////////////////////////////// 
+10) Matrix trick
+public static long Mod = 1000000007;
+public static long[][] powSquareMatrix(long[][] A, long p) {
+    long[][] unit = new long[A.length][A.length];
+    for (int i = 0; i < unit.length; i++) {
+        unit[i][i] = 1;
+    }
+    if (p == 0) {
+        return unit;
+    }
+    long[][] val = powSquareMatrix(A, p / 2);
+    if (p % 2 == 0) {
+        return mulMatrix(val, val);
+    } else {
+        return mulMatrix(A, mulMatrix(val, val));
+    }
+
+}
+
+public static long[][] mulMatrix(long[][] A, long[][] B) {
+    long[][] result = new long[A.length][B[0].length];
+    for (int i = 0; i < result.length; i++) {
+        for (int j = 0; j < result[0].length; j++) {
+            for (int k = 0; k < A[0].length; k++) {
+                result[i][j] += (A[i][k] * B[k][j] % Mod);
+                result[i][j] %= Mod;
+            }
+            result[i][j] %= Mod;
+        }
+    }
+
+    return result;
+}
+///////////////////////////////////////////////////////////////////////////////////////// 
+11) Modular Multiplicative Inverse
+
+- x is modular multiplicative inverse of a mod m <-> a^-1 # x (mod m) or a*a^-1 # a*x (mod m)
+
+(This can be use when handling mod for dividing)
+
+Note: - Fermat little theorem : a^(p-1) # 1 (mod p) , a and p coprime. -> a^(p - 2) # 1/a (mod p) -> x = a^(p-2) (mod m)
+///////////////////////////////////////////////////////////////////////////////////////// 
+12) Stars and bars
+
+- For any pair of positive integers n and k, the number of distinct n-tuples of positive integers whose sum is k is given by  C (k - 1, n - 1)
+- For any pair of natural numbers n and k, the number of distinct n-tuples of non-negative integers whose sum is k is given by C (n + k - 1, k)
+///////////////////////////////////////////////////////////////////////////////////////// 
+13) There is a formula for prefix xors 0 ^ 1 ^ .... ^ k:
+int xorUpToK(int k) {
+	switch (k % 4) {
+		case 0: return k;
+		case 1: return 1;
+		case 2: return k + 1;
+		case 3: return 0;
+	}
+}
+///////////////////////////////////////////////////////////////////////////////////////// 
+14)Hungarian algorithm
+import java.util.Arrays;
+public class ChessMatchup {
+
+    public int n, max_match = 0;
+    public int[][] cost;
+    public int[] xy, yx, lx, ly, slack, slackx, prev;
+    public boolean[] S, T;
+
+    public int maximumScore(int[] us, int[] them) {
+        n = us.length;
+        cost = new int[n][n];
+        xy = new int[n];
+        yx = new int[n];
+        Arrays.fill(xy, -1);
+        Arrays.fill(yx, -1);
+        lx = new int[n];
+        ly = new int[n];
+        slack = new int[n];
+        slackx = new int[n];
+        prev = new int[n];
+        S = new boolean[n];
+        T = new boolean[n];
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                if (us[i] < them[j]) {
+                    cost[i][j] = 0;
+                } else if (us[i] == them[j]) {
+                    cost[i][j] = 1;
+                } else {
+                    cost[i][j] = 2;
+                }
+            }
+        }
+        initLabels();
+        augment();
+        int result = 0;
+        for(int i = 0; i < n; i++){            
+            result += cost[i][xy[i]];
+        }
+        return result;
+    }
+
+    public void initLabels() {
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                lx[i] = Math.max(lx[i], cost[i][j]);
+            }
+        }
+    }
+
+    public void updateLabels() {
+        int x, y, delta = Integer.MAX_VALUE;
+        for (y = 0; y < n; y++) {
+            if (!T[y]) {
+                delta = Math.min(delta, slack[y]);
+            }
+        }
+        for (x = 0; x < n; x++) {
+            if (S[x]) {
+                lx[x] -= delta;
+            }
+        }
+        for (y = 0; y < n; y++) {
+            if (T[y]) {
+                ly[y] += delta;
+            }
+        }
+        for (y = 0; y < n; y++) {
+            if (!T[y]) {
+                slack[y] -= delta;
+            }
+        }
+    }
+
+    public void addToTree(int x, int prevX) {
+        S[x] = true;
+        prev[x] = prevX;
+        for (int y = 0; y < n; y++) {
+            if (lx[x] + ly[y] - cost[x][y] < slack[y]) {
+                slack[y] = lx[x] + ly[y] - cost[x][y];
+                slackx[y] = x;
+            }
+        }
+    }
+
+    public void augment() {
+        if (max_match == n) {
+            return;
+        }
+        int x, y, root = 0, rd = 0, wr = 0;
+        int[] q = new int[n];
+        Arrays.fill(S, false);
+        Arrays.fill(T, false);
+        Arrays.fill(prev, -1);
+        for (x = 0; x < n; x++) {
+            if (xy[x] == -1) {
+                q[wr++] = root = x;
+                prev[x] = -2;
+                S[x] = true;
+                break;
+            }
+        }       
+        for (y = 0; y < n; y++) {
+            slack[y] = lx[root] + ly[y] - cost[root][y];
+            slackx[y] = root;
+        }
+        while (true) {
+            while (rd < wr) {
+                x = q[rd++];
+                for (y = 0; y < n; y++) {
+                    if (cost[x][y] == lx[x] + ly[y] && !T[y]) {
+                        if (yx[y] == -1) {
+                            break;
+                        }
+                        T[y] = true;
+                        q[wr++] = yx[y];
+                        addToTree(yx[y], x);
+                    }
+                }
+                if (y < n) {
+                    break;
+                }
+            }
+            if (y < n) {
+                break;
+            }
+            updateLabels();
+            rd = wr = 0;
+            for (y = 0; y < n; y++) {
+                if (!T[y] && slack[y] == 0) {
+                    if (yx[y] == -1) {
+                        x = slackx[y];
+                        break;
+                    } else {
+                        T[y] = true;
+                        if (!S[yx[y]]) {
+                            q[wr++] = yx[y];
+                            addToTree(yx[y], slackx[y]);
+                        }
+                    }
+
+                }
+            }
+            if (y < n) {
+                break;
+            }
+        }
+        if (y < n) {
+            max_match++;
+            for (int cx = x, cy = y, ty = -1; cx != -2; cx = prev[cx], cy = ty) {
+                ty = xy[cx];
+                yx[cy] = cx;
+                xy[cx] = cy;
+               // System.out.println(x +" " + cy);
+            }
+            augment();
+        }
+    }
+    public static void main(String []args){
+        int []a = {4,6};
+        int []b = {4,7};
+        System.out.println(new ChessMatchup().maximumScore(a, b));
+    }
+}
+///////////////////////////////////////////////////////////////////////////////////////// 
+15) Initialize at table of combination
+    c = new long[101][101];
+    c[0][0] = 1;
+
+    for (int i = 1; i < 101; i++) {
+        c[i][0] = 1;
+        c[i][i] = 1;
+        for (int j = 1; j < i; j++) {
+            c[i][j] = c[i - 1][j - 1] + c[i - 1][j];
+            c[i][j] %= mod;
+        }
+    }
+/////////////////////////////////////////////////////////////////////////////////////////
+16) Tenary search
+Finding the minimum or maximum of an increasing or decreasing function
+
+Code for min
+
+    double s = 0;
+    double e = 10000000;
+    
+    while (Math.abs(e - s) >= 1e-9) {
+        double left = s + (e - s) / 3;
+        double right = e - (e - s) / 3;
+        
+        if (f(left) < f(right)) {                
+            e = right;
+        } else {
+            s = left;                
+        }
+    }
+    double result = (s + e) / 2;
+
+
+ Equivalent binary search
+ 
+ while(lo < hi) {
+    int mid = (lo + hi) >> 1;
+    if(f(mid) > f(mid+1)) {
+        hi = mid;
+    }
+    else {
+        lo = mid+1;
+    }
+ }   
+/////////////////////////////////////////////////////////////////////////////////////////
+17)Arrange list of string to get maximum/minimum lexicographical order.
+
+Suppose, we have two strings s and t. If t comes immediately after s in some arrangement and s+t < t+s we can easily swap them and receive bigger number. So, we can sort all strings according to this rule. It reminds bubble sort.
+
+Pseudo Code:
+boolean swap = true;
+while(swap){
+    swap = false;
+	for(int i = 0; i < data.length - 1; i++){
+	    String s = data[i];
+        String t = data[i + 1];
+        if((s + t) < (t + s)){
+		    swap s and t;
+			swap = true;
+        } 		
+	}
+}
+/////////////////////////////////////////////////////////////////////////////////////////
+18) KMP
+
+    public int[] KMP(String val) {
+        int i = 0;
+        int j = -1;
+        int[] result = new int[val.length() + 1];
+        result[0] = -1;
+        while (i < val.length()) {
+            while (j >= 0 && val.charAt(j) != val.charAt(i)) {
+                j = result[j];
+            }
+            j++;
+            i++;
+            result[i] = j;
+        }
+        return result;
+
+    }
+	
+	void kmpPreprocess() { // call this before calling kmpSearch()
+		int i = 0, j = -1;
+		b[0] = -1; // starting values
+		while (i < m) { // pre-process the pattern string P
+			while (j >= 0 && P[i] != P[j]) 
+				j = b[j]; // if different, reset j using b
+			i++; j++; // if same, advance both pointers
+			b[i] = j; // observe i = 8, 9, 10, 11, 12 with j = 0, 1, 2, 3, 4
+		}
+	}           // in the example of P = "SEVENTY SEVEN" above
+
+	void kmpSearch() { // this is similar as kmpPreprocess(), but on string T
+		int i = 0, j = 0; // starting values
+		while (i < n) { // search through string T
+			while (j >= 0 && T[i] != P[j])
+				j = b[j]; // if different, reset j using b
+			i++; j++; // if same, advance both pointers
+			if (j == m) { // a match found when j == m
+				System.out.printf("P is found at index %d in T\n", i - j);
+				j = b[j]; // prepare j for the next possible match
+			}
+		}
+	}
+/////////////////////////////////////////////////////////////////////////////////////////	
+19) Gauss Elimination	
+//Code by Robert Sedgewick
+public class GaussianElimination {
+    private static final double EPSILON = 1e-10;
+
+    // Gaussian elimination with partial pivoting
+    public static double[] lsolve(double[][] A, double[] b) {
+        int N  = b.length;
+
+        for (int p = 0; p < N; p++) {
+
+            // find pivot row and swap
+            int max = p;
+            for (int i = p + 1; i < N; i++) {
+                if (Math.abs(A[i][p]) > Math.abs(A[max][p])) {
+                    max = i;
+                }
+            }
+            double[] temp = A[p]; A[p] = A[max]; A[max] = temp;
+            double   t    = b[p]; b[p] = b[max]; b[max] = t;
+
+            // singular or nearly singular
+            if (Math.abs(A[p][p]) <= EPSILON) {
+                throw new RuntimeException("Matrix is singular or nearly singular");
+            }
+
+            // pivot within A and b
+            for (int i = p + 1; i < N; i++) {
+                double alpha = A[i][p] / A[p][p];
+                b[i] -= alpha * b[p];
+                for (int j = p; j < N; j++) {
+                    A[i][j] -= alpha * A[p][j];
+                }
+            }
+        }
+
+        // back substitution
+        double[] x = new double[N];
+        for (int i = N - 1; i >= 0; i--) {
+            double sum = 0.0;
+            for (int j = i + 1; j < N; j++) {
+                sum += A[i][j] * x[j];
+            }
+            x[i] = (b[i] - sum) / A[i][i];
+        }
+        return x;
+    }
+
+
+    // sample client
+    public static void main(String[] args) {
+        int N = 3;
+        double[][] A = { { 0, 1,  1 },
+                         { 2, 4, -2 },
+                         { 0, 3, 15 }
+                       };
+        double[] b = { 4, 2, 36 };
+        double[] x = lsolve(A, b);
+
+
+        // print results
+        for (int i = 0; i < N; i++) {
+            System.out.println(x[i]);
+        }
+
+    }
+}
+/////////////////////////////////////////////////////////////////////////////////////////
+20) When there is a loop in the process, using a stack to correct the dynamic programming.
+Example:
+int cal(int state, Stack<Integer> s, Stack<Integer> tmp){
+    if(dp[state] != -1){
+		if(dp[state] == -2){
+		    int result = ...//
+			while(s.peek() != state){
+			      s.pop();
+				  result = min(tmp.pop, result);
+			}
+			dp[state] = result;
+		}
+		return dp[state];
+	}
+    dp[state] = -2;
+}
+/////////////////////////////////////////////////////////////////////////////////////////
+21) To find maximum area in an array of n element with different heights:
+- Sort the heights entry based on its height.
+- Process each entry in ascending order
+- Using a binary tree to store each index, using the tree to find the lower and larger index compare to the current index
+  area = max((larger - lower + 1 )* height)
+/////////////////////////////////////////////////////////////////////////////////////////
+22)
+CR*: Given a permutation (x0, ... xN-1) of the numbers 0 to N-1. You are allowed to swap adjacent numbers. Find the minimum number of swaps needed in order to sort the list in increasing order. 
+Solution (to CR*). Define the disorder of the list to be the number of pairs i < j, where xi > xj. In one swap (of adjacent numbers), the total number of disorder is changed by exactly one. (Check it!) Therefore, let the disorder of initial configuration be D, you need at least D swaps. D swaps is also sufficient -- as long as the list is not sorted, there exist adjacent pairs in wrong order. You can swap any of such pairs and decrease the disorder by 1.    
+
+In particular,
+
+    (1) One type of optimal solutions of CR* involves first to swap the number 0 all the way to the left, then let it stay there forever.   
+/////////////////////////////////////////////////////////////////////////////////////////
+23) Generate all subset j from set i
+	for(j=i;j>=0;j=(j-1)&i)
+
+/////////////////////////////////////////////////////////////////////////////////////////
+
+24) Z-algorithm, find the longest prefix that match a substring start at position i  
+
+int[]z = 
+int L = 0, R = 0;
+for (int i = 1; i < n; i++) {
+  if (i > R) {
+    L = R = i;
+    while (R < n && s[R-L] == s[R]) 
+        R++;
+    z[i] = R-L; 
+    R--;
+  } else {
+    int k = i-L;
+    if (z[k] < R-i+1) 
+      z[i] = z[k];
+    else {
+      L = i;
+      while (R < n && s[R-L] == s[R])
+        R++;
+      z[i] = R-L;
+      R--;
+    }
+  }
+}  
+/////////////////////////////////////////////////////////////////////////////////////////
+25) Extended Euclid algorithm and Modular Linear Equation Solver
+- Extended Euclid algorithm: Find smallest x and y 
+  ax + by  = gcd(a,b)
+  
+  static long[] extendEuclid(long a, long b) {
+        if (b == 0) {
+            return new long[]{a, 1, 0};
+        }
+        long[] re = extendEuclid(b, a % b);
+        long x = re[2];
+        long y = re[1] - (a / b) * re[2];
+        re[1] = x;
+        re[2] = y;
+        return re;
+
+  }
+
+- Modular Linear Equation Solver: Find all x
+  ax = b(mod n)
+  
+  static long[] modularLinearSolver(long a, long b, long n) {
+        long[] ex = extendEuclid(a, n);
+        if(b % ex[0] != 0){
+            throw new IllegalArgumentException("No solution");
+        }
+        long []result = new long[(int)n];
+        result[0] = (ex[1] * (b / ex[0])) % n;
+        for(int i = 1; i < n; i++){
+            result[i] = result[0] + i*(n/ex[0]);
+        }
+        return result;
+  }
+  
+  
+  
+
+
+  
+	
