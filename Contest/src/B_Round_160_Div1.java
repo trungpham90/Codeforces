@@ -25,51 +25,84 @@ import java.util.TreeSet;
 
 /**
  *
- *
-
+ * Problem statement: http://codeforces.com/problemset/problem/261/B
  *
  * @author pttrung
  */
-public class D_Round_294_Div2 {
+public class B_Round_160_Div1 {
 
     public static long MOD = 1000000007;
-    static int[] X = {0, 1};
-    static int[] Y = {1, 0};
-    static int[][][] dp;
+    static double[][][][] dp;
 
     public static void main(String[] args) throws FileNotFoundException {
         // PrintWriter out = new PrintWriter(new FileOutputStream(new File(
         // "output.txt")));
         PrintWriter out = new PrintWriter(System.out);
         Scanner in = new Scanner();
-        int[]p = new int[26];
-        
-        for(int i = 0; i < 26; i++){
-            p[i] = in.nextInt();
+        int n = in.nextInt();
+        int[] data = new int[n];
+        int[] count = new int[51];
+        int total = 0;
+        for (int i = 0; i < n; i++) {
+            int v = in.nextInt();
+            data[i] = v;
+            count[v]++;
+            total += v;
         }
-        HashMap<Long, Integer> []map = new HashMap[26];
-        for(int i = 0; i < 26; i++){
-            map[i] = new HashMap();
+
+        int[] post = new int[52];
+        for (int i = 50; i >= 0; i--) {
+            post[i] = count[i] + post[i + 1];
         }
-        String v = in.next();
-        int n = v.length();
-        long cur = 0;
-        long total = 0;
-        for(int i = 0; i < n; i++){
-            int index = v.charAt(i) - 'a';
-            if(i > 0){
-                if(map[index].containsKey(cur)){
-                    total += map[index].get(cur);
+
+        int p = in.nextInt();
+        double result = 0;
+        dp = new double[51][51][51][51];//total - current - number - left
+        double rate = 1;
+        for (int i = 1; i <= n; i++) {
+            rate /= i;
+        }
+
+        for (int i = 1; i <= p; i++) {
+
+            int left = p - i + 1;
+            // System.out.println(post[left] + " " + i + " " );
+            if (post[left] > 0) {
+
+                dp[i][0][0][post[left]] = rate;
+                for (int k = 0; k < n; k++) {
+                    for (int j = i; j >= 0; j--) {
+
+                        if (j + data[k] <= i) {
+                            int decrease = data[k] + i > p ? 1 : 0;
+                            for (int h = n - 1; h >= 0; h--) {
+                                for (int m = decrease; m <= post[left]; m++) {
+                                    dp[i][j + data[k]][h + 1][m - decrease] += dp[i][j][h][m] * (h + 1);
+                                }
+                            }
+                        }
+                    }
                 }
-            }
-            cur += p[index];
-            if(!map[index].containsKey(cur)){
-                map[index].put(cur, 1);
-            }else{
-                map[index].put(cur, map[index].get(cur) + 1);
+
+                for (int h = 1; h <= n; h++) {
+                    double other = 1;
+                    for (int j = 1; j < n - h; j++) {
+                        other *= j;
+                    }
+                    for (int m = 1; m <= post[left]; m++) {                        
+                        double add = other * h * m;
+                        result += add * dp[i][i][h][m];
+                    }
+                }
+
+
             }
         }
-        out.println(total);
+        if (total <= p) {
+            out.println(n);
+        } else {
+            out.println(result);
+        }
         out.close();
     }
 
