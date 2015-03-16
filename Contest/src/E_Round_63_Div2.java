@@ -23,15 +23,6 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 /**
- * 
- * 
- * 3 2 3 5 -2 -1 4 -1 2 7 3
- * 
- * 10 1 -10617 30886 -7223 -63085 47793 -61665 -14614 60492 16649 -58579 3 8 1
- * 10 4 7 1 7 3 7
- * 
- * 22862 -34877
- * 
  * @author pttrung
  */
 public class E_Round_63_Div2 {
@@ -437,4 +428,5 @@ public class E_Round_63_Div2 {
 			}
 		}
 	}
+
 }
