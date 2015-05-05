@@ -30,7 +30,7 @@ public class A000_CreateClassHelper {
             }
         }
         File root = new File("");
-        File file = new File(root.getAbsolutePath()+ "\\src\\" + name + ".java");
+        File file = new File(root.getAbsolutePath()+ "/src/" + name + ".java");
         Scanner in = new Scanner(new FileReader(new File(TEMPLATE_FILE_LOCATION)));
         PrintWriter out = new PrintWriter(new FileOutputStream(file));
         while (in.hasNextLine()) {
