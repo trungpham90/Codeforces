@@ -55,11 +55,12 @@ public class C_1C_GCJ2015 {
                         index++;
                     } else {
                         result++;
-                        max += (max + 1);
+
+                        max += c*(max + 1);
                     }
                 } else {
                     result++;
-                    max += max + 1;
+                    max += c*(max + 1);
                 }
             }
             out.println("Case #" + (z + 1) + ": " + result);
