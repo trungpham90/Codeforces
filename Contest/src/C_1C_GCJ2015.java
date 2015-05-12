@@ -55,6 +55,7 @@ public class C_1C_GCJ2015 {
                         index++;
                     } else {
                         result++;
+
                         max += c*(max + 1);
                     }
                 } else {
