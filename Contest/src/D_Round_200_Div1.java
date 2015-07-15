@@ -27,16 +27,137 @@ import java.util.TreeSet;
  * #
  * @author pttrung
  */
-public class $ {
+public class D_Round_200_Div1 {
 
-    public static long MOD = 1000000007;  
+    public static long MOD = 1000000007;
+    static int index = 0;
 
     public static void main(String[] args) throws FileNotFoundException {
         // PrintWriter out = new PrintWriter(new FileOutputStream(new File(
         // "output.txt")));
         PrintWriter out = new PrintWriter(System.out);
-        Scanner in = new Scanner();        
+        Scanner in = new Scanner();
+        int n = in.nextInt();
+        ArrayList<Integer>[] map = new ArrayList[n];
+
+        for (int i = 0; i < n; i++) {
+            map[i] = new ArrayList();
+
+        }
+        for (int i = 0; i < n - 1; i++) {
+            int a = in.nextInt() - 1;
+            int b = in.nextInt() - 1;
+            map[a].add(b);
+            map[b].add(a);
+        }
+        int[] s = new int[n];
+        int[] e = new int[n];
+        visit(0, 0, s, e, map);
+        //System.out.println(Arrays.toString(s) + " " + Arrays.toString(e));
+        int m = in.nextInt();
+        Node fill = new Node(0, index - 1);
+        Node pour = new Node(0, index - 1);
+        for (int i = 0; i < m; i++) {
+            int t = in.nextInt();
+            int v = in.nextInt() - 1;
+           
+            if (t == 1) {
+                update(s[v], e[v], i, false, fill);
+            } else if (t == 2) {
+                update(s[v], s[v], i, true, pour);
+                update(e[v], e[v], i, true, pour);
+            } else {
+                int a = get(s[v], s[v], true, fill);
+                int b = get(s[v], e[v], false, pour);
+              //  System.out.println("QUERY " +  i + " "+ a + " " + b + " " + v);
+                if (a <= b) {
+                    out.println(0);
+                } else {
+                    out.println(1);
+                }
+            }
+            //System.out.println("After " + i);
+            //print(fill);
+        }
         out.close();
+    }
+    static void print(Node node){
+        if(node == null){
+            return;
+        }
+        System.out.println(node.l + " " + node.r + " " + node.val);
+        print(node.left);
+        print(node.right);
+    }
+
+    static void visit(int node, int pa, int[] s, int[] e,
+            ArrayList<Integer>[] map) {
+        s[node] = index++;
+        for (int i : map[node]) {
+            if (i != pa) {
+                visit(i, node, s, e, map);
+            }
+        }
+        e[node] = index++;
+    }
+
+    static int get(int l, int r, boolean up, Node node) {
+        if (node == null) {
+            return -1;
+        }
+        if (node.l > r || node.r < l) {
+            return -1;
+        }
+        if (l <= node.l && node.r <= r) {
+            return node.val;
+        }
+        int result = Math.max(get(l, r, up, node.right),
+                get(l, r, up, node.left));
+
+        if (up) {
+            result = Math.max(result, node.val);
+        }
+        return result;
+    }
+
+    static void update(int l, int r, int v, boolean up, Node node) {
+        if (node.l > r || node.r < l) {
+            return;
+        }
+        if (l <= node.l && node.r <= r) {
+            node.val = v;
+            return;
+        }
+        if (node.left == null) {
+            node.left = new Node(node.l, (node.l + node.r) / 2);
+            if (!up) {
+                node.left.val = node.val;
+            }
+        }
+        update(l, r, v, up, node.left);
+        if (node.right == null) {
+            node.right = new Node((node.l + node.r) / 2 + 1, node.r);
+            if (!up) {
+                node.right.val = node.val;
+            }
+        }
+        update(l, r, v, up, node.right);
+        if (up) {
+            node.val = Math.max(node.val, Math.max(node.left.val, node.right.val));
+        }
+    }
+
+    static class Node {
+
+        int l, r;
+        Node left = null, right = null;
+        int val = -1;
+
+        public Node(int l, int r) {
+            super();
+            this.l = l;
+            this.r = r;
+        }
     }
 
     public static int[] KMP(String val) {
