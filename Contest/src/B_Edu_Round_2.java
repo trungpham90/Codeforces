@@ -29,40 +29,44 @@ import java.util.TreeSet;
  */
 public class B_Edu_Round_2 {
 
-    public static long MOD = 1000000007;  
+    public static long MOD = 1000000007;
 
     public static void main(String[] args) throws FileNotFoundException {
         // PrintWriter out = new PrintWriter(new FileOutputStream(new File(
         // "output.txt")));
         PrintWriter out = new PrintWriter(System.out);
-        Scanner in = new Scanner();        
+        Scanner in = new Scanner();
         int n = in.nextInt();
         int m = in.nextInt();
-        int[]a = new int[n];
-        int[]b = new int[m];
-        for(int i = 0; i < n; i++ ){
+        int[] a = new int[n];
+        int[] b = new int[m];
+        PriorityQueue<Integer> q = new PriorityQueue();
+        for (int i = 0; i < n; i++) {
             a[i] = in.nextInt();
+            q.add(a[i]);
         }
-        for(int i = 0; i < m; i++ ){
+        for (int i = 0; i < m; i++) {
             b[i] = in.nextInt();
         }
-        Arrays.sort(a);
-        for(int i = 0; i < m; i++){
+        for (int i = 0; i < n; i++) {
+            a[i] = q.poll();
+        }
+        for (int i = 0; i < m; i++) {
             int start = 0;
             int end = n - 1;
             int index = -1;
-            while(start <= end){
-                int mid = (end + start)>>1;
-                if(a[mid] <= b[i]){
+            while (start <= end) {
+                int mid = (end + start) >> 1;
+                if (a[mid] <= b[i]) {
                     index = Math.max(mid, index);
                     start = mid + 1;
-                }else{
+                } else {
                     end = mid - 1;
                 }
             }
             out.print((index + 1) + " ");
         }
-        
+
         out.close();
     }
 

@@ -27,51 +27,40 @@ import java.util.TreeSet;
  * #
  * @author pttrung
  */
-public class C_Edu_Round_2 {
+public class C_Round_332_Div2 {
 
-    public static long MOD = 1000000007;
+    public static long MOD = 1000000007;  
 
     public static void main(String[] args) throws FileNotFoundException {
         // PrintWriter out = new PrintWriter(new FileOutputStream(new File(
         // "output.txt")));
         PrintWriter out = new PrintWriter(System.out);
-        Scanner in = new Scanner();
-        String v = in.next();
-        int[] count = new int[26];
-        for (int i = 0; i < v.length(); i++) {
-            int j = v.charAt(i) - 'a';
-            count[j]++;
+        Scanner in = new Scanner();        
+        int n = in.nextInt();
+        int[]data = new int[n];
+        int[]tmp = new int[n];
+        for(int i = 0; i < n; i++){
+        	data[i] = in.nextInt();
+        	tmp[i] = data[i];
         }
-        for (int i = 0; i < 26; i++) {
-            if (count[i] % 2 == 1) {
-                for (int j = 25; j > i; j--) {
-                    if (count[j] % 2 == 1) {
-                        count[j]--;
-                        count[i]++;
-                        break;
-                    }
-                }
-            }
+        Arrays.sort(tmp);
+        HashMap<Integer, Integer> map = new HashMap();
+        for(int i = 0; i < n; i++){
+        	if(!map.containsKey(tmp[i])){
+        		map.put(tmp[i], i);
+        	}
         }
-        char[] result = new char[v.length()];
-        int start = 0;
-        int end = v.length() - 1;
-        int mid = -1;
-        for (int i = 0; i < 26; i++) {
-            if (count[i] % 2 != 0) {
-                mid = i;
-                count[i]--;
-            }
-            for (int j = 0; j < (count[i] + 1) / 2; j++) {
-                result[start++] = (char) ('a' + i);
-                result[end--] = (char) ('a' + i);
-            }
+        int result = 0;
+        int end = 0;
+        for(int i = 0; i < n; i++){
+        	end = Math.max(end, map.get(data[i]));
+        	map.put(data[i],map.get(data[i]) + 1);
+        //	System.out.println(i + " " + end);
+        	if(end <= i){
+        		result++;
+        	}
         }
-        if (mid != -1) {
-            result[start++] = (char) ('a' + mid);
-        }        
-
-        out.println(new String(result));
+        out.println(result);
         out.close();
     }
 
@@ -205,14 +194,14 @@ public class C_Edu_Round_2 {
         return gcd(b, a % b);
     }
 
-    public static long pow(long a, long b, long MOD) {
+    public static long pow(long a, long b) {
         if (b == 0) {
             return 1;
         }
         if (b == 1) {
             return a;
         }
-        long val = pow(a, b / 2, MOD);
+        long val = pow(a, b / 2);
         if (b % 2 == 0) {
             return val * val % MOD;
         } else {
