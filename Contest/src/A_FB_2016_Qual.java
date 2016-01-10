@@ -27,81 +27,66 @@ import java.util.TreeSet;
  * #
  * @author pttrung
  */
-public class B_FB_2016 {
+public class A_FB_2016_Qual {
 
     public static long MOD = 1000000007;
-    static int[][] dp;
 
     public static void main(String[] args) throws FileNotFoundException {
         PrintWriter out = new PrintWriter(new FileOutputStream(new File(
                 "output.txt")));
-        //  PrintWriter out = new PrintWriter(System.out);
+        // PrintWriter out = new PrintWriter(System.out);
         Scanner in = new Scanner();
         int t = in.nextInt();
         for (int z = 0; z < t; z++) {
             int n = in.nextInt();
-            dp = new int[n + 1][n + 1];
-            for (int[] a : dp) {
-                Arrays.fill(a, -1);
+            Point[] data = new Point[n];
+            for (int i = 0; i < n; i++) {
+                data[i] = new Point(in.nextInt(), in.nextInt());
             }
-            String[] data = new String[2];
-            for (int i = 0; i < 2; i++) {
-                data[i] = in.next();
-            }
-            ArrayList<Point>[] list = new ArrayList[2];
-            for (int i = 0; i < 2; i++) {
-                list[i] = new ArrayList();
-                int start = -1;
+            long result = 0;
+            for (int i = 0; i < n; i++) {
+                HashMap<Long, Integer> map = new HashMap();
                 for (int j = 0; j < n; j++) {
-                    if (data[i].charAt(j) == '.') {
-                        if (start == -1) {
-                            start = j;
+                    if (i != j) {
+                        long v = distSquare(data[i], data[j]);
+                        if (!map.containsKey(v)) {
+                            map.put(v, 1);
+                        } else {
+                            map.put(v, map.get(v) + 1);
                         }
-                    } else if (start != -1) {
-                        list[i].add(new Point(start, j - 1));
-                        start = -1;
                     }
                 }
-                if (start != -1) {
-                    list[i].add(new Point(start, n - 1));
+                //System.out.println(map);
+                for (int j : map.values()) {
+                    result += (long) j * (long) (j - 1) / 2L;
                 }
+
             }
-            int v = cal(list);
-            out.println("Case #" + (z + 1) + ": " + v);
+//            long other = 0;
+//            for (int i = 0; i < n; i++) {
+//                for (int j = 0; j < n; j++) {
+//                    if (i != j) {
+//                        for (int k = j + 1; k < n; k++) {
+//                            if (i != k && j != k) {
+//                                long a = distSquare(data[i], data[j]);
+//                                long b = distSquare(data[i], data[k]);
+//                                if(a == b){
+//                                    other++;
+//                                }
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+            out.println("Case #" + (z + 1) + ": " + result );
         }
         out.close();
     }
 
-    public static int cal(ArrayList<Point>[] list) {
-        boolean[][] check = new boolean[2][];
-        int result = 0;
-        for (int i = 0; i < 2; i++) {
-            check[i] = new boolean[list[i].size()];
-        }
-        for (int i = 0; i < 2; i++) {
-            for (int j = 0; j < list[i].size(); j++) {
-                if (!check[i][j]) {
-                    Point p = list[i].get(j);
-                    for (int k = 0; k < list[1 - i].size(); k++) {
-                        Point q = list[1 - i].get(k);
-                        if (!check[1 - i][k] && q.x == q.y && p.x <= q.x && q.y <= p.y) {
-                            check[i][j] = true;
-                            check[1 - i][k] = true;
-                            result++;
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-        for (int i = 0; i < 2; i++) {
-            for (boolean v : check[i]) {
-                if (!v) {
-                    result++;
-                }
-            }
-        }
-        return result;
+    static long distSquare(Point a, Point b) {
+        long X = a.x - b.x;
+        long Y = a.y - b.y;
+        return X * X + Y * Y;
     }
 
     public static int[] KMP(String val) {
@@ -194,11 +179,6 @@ public class B_FB_2016 {
         }
 
         @Override
-        public String toString() {
-            return "Point{" + "x=" + x + ", y=" + y + '}';
-        }
-
-        @Override
         public int compareTo(Point o) {
             return x - o.x;
         }
@@ -260,8 +240,8 @@ public class B_FB_2016 {
 
         public Scanner() throws FileNotFoundException {
             // System.setOut(new PrintStream(new BufferedOutputStream(System.out), true));
-            //br = new BufferedReader(new InputStreamReader(System.in));
-            br = new BufferedReader(new InputStreamReader(new FileInputStream(new File("high_security.txt"))));
+            // br = new BufferedReader(new InputStreamReader(System.in));
+            br = new BufferedReader(new InputStreamReader(new FileInputStream(new File("boomerang_constellations.txt"))));
         }
 
         public String next() {

@@ -27,9 +27,10 @@ import java.util.TreeSet;
  * #
  * @author pttrung
  */
-public class C_FB_2016 {
+public class B_FB_2016_Qual {
 
     public static long MOD = 1000000007;
+    static int[][] dp;
 
     public static void main(String[] args) throws FileNotFoundException {
         PrintWriter out = new PrintWriter(new FileOutputStream(new File(
@@ -39,40 +40,68 @@ public class C_FB_2016 {
         int t = in.nextInt();
         for (int z = 0; z < t; z++) {
             int n = in.nextInt();
-            long p = in.nextInt();
-            long[] data = new long[n];
-            long[] pre = new long[n];
-            for (int i = 0; i < n; i++) {
-                data[i] = in.nextInt();
-                pre[i] = data[i];
-                if (i > 0) {
-                    pre[i] += pre[i - 1];
-                }
+            dp = new int[n + 1][n + 1];
+            for (int[] a : dp) {
+                Arrays.fill(a, -1);
             }
-            long result = 0;
-            for (int i = 0; i < n; i++) {
-                int re = -1;
-                int start = 0;
-                int end = i;
-                while (start <= end) {
-                    int mid = (start + end) >> 1;
-                    long v = pre[i] - (mid > 0 ? pre[mid - 1] : 0);
-                    if (v <= p) {
-                        if (re == -1 || re > mid) {
-                            re = mid;
+            String[] data = new String[2];
+            for (int i = 0; i < 2; i++) {
+                data[i] = in.next();
+            }
+            ArrayList<Point>[] list = new ArrayList[2];
+            for (int i = 0; i < 2; i++) {
+                list[i] = new ArrayList();
+                int start = -1;
+                for (int j = 0; j < n; j++) {
+                    if (data[i].charAt(j) == '.') {
+                        if (start == -1) {
+                            start = j;
                         }
-                        end = mid - 1;
-                    } else {
-                        start = mid + 1;
+                    } else if (start != -1) {
+                        list[i].add(new Point(start, j - 1));
+                        start = -1;
                     }
                 }
-                if (re != -1) {
-                    result += (long)i - (long)re + 1L;
+                if (start != -1) {
+                    list[i].add(new Point(start, n - 1));
                 }
             }
-            out.println("Case #" + (z + 1) + ": " + result);
+            int v = cal(list);
+            out.println("Case #" + (z + 1) + ": " + v);
         }
         out.close();
+    }
+
+    public static int cal(ArrayList<Point>[] list) {
+        boolean[][] check = new boolean[2][];
+        int result = 0;
+        for (int i = 0; i < 2; i++) {
+            check[i] = new boolean[list[i].size()];
+        }
+        for (int i = 0; i < 2; i++) {
+            for (int j = 0; j < list[i].size(); j++) {
+                if (!check[i][j]) {
+                    Point p = list[i].get(j);
+                    for (int k = 0; k < list[1 - i].size(); k++) {
+                        Point q = list[1 - i].get(k);
+                        if (!check[1 - i][k] && q.x == q.y && p.x <= q.x && q.y <= p.y) {
+                            check[i][j] = true;
+                            check[1 - i][k] = true;
+                            result++;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        for (int i = 0; i < 2; i++) {
+            for (boolean v : check[i]) {
+                if (!v) {
+                    result++;
+                }
+            }
+        }
+        return result;
     }
 
     public static int[] KMP(String val) {
@@ -165,6 +194,11 @@ public class C_FB_2016 {
         }
 
         @Override
+        public String toString() {
+            return "Point{" + "x=" + x + ", y=" + y + '}';
+        }
+
+        @Override
         public int compareTo(Point o) {
             return x - o.x;
         }
@@ -227,7 +261,7 @@ public class C_FB_2016 {
         public Scanner() throws FileNotFoundException {
             // System.setOut(new PrintStream(new BufferedOutputStream(System.out), true));
             //br = new BufferedReader(new InputStreamReader(System.in));
-            br = new BufferedReader(new InputStreamReader(new FileInputStream(new File("the_price_is_correct.txt"))));
+            br = new BufferedReader(new InputStreamReader(new FileInputStream(new File("high_security.txt"))));
         }
 
         public String next() {

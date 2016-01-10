@@ -27,66 +27,52 @@ import java.util.TreeSet;
  * #
  * @author pttrung
  */
-public class A_FB_2016 {
+public class C_FB_2016_Qual {
 
     public static long MOD = 1000000007;
 
     public static void main(String[] args) throws FileNotFoundException {
         PrintWriter out = new PrintWriter(new FileOutputStream(new File(
                 "output.txt")));
-        // PrintWriter out = new PrintWriter(System.out);
+        //  PrintWriter out = new PrintWriter(System.out);
         Scanner in = new Scanner();
         int t = in.nextInt();
         for (int z = 0; z < t; z++) {
             int n = in.nextInt();
-            Point[] data = new Point[n];
+            long p = in.nextInt();
+            long[] data = new long[n];
+            long[] pre = new long[n];
             for (int i = 0; i < n; i++) {
-                data[i] = new Point(in.nextInt(), in.nextInt());
+                data[i] = in.nextInt();
+                pre[i] = data[i];
+                if (i > 0) {
+                    pre[i] += pre[i - 1];
+                }
             }
             long result = 0;
             for (int i = 0; i < n; i++) {
-                HashMap<Long, Integer> map = new HashMap();
-                for (int j = 0; j < n; j++) {
-                    if (i != j) {
-                        long v = distSquare(data[i], data[j]);
-                        if (!map.containsKey(v)) {
-                            map.put(v, 1);
-                        } else {
-                            map.put(v, map.get(v) + 1);
+                int re = -1;
+                int start = 0;
+                int end = i;
+                while (start <= end) {
+                    int mid = (start + end) >> 1;
+                    long v = pre[i] - (mid > 0 ? pre[mid - 1] : 0);
+                    if (v <= p) {
+                        if (re == -1 || re > mid) {
+                            re = mid;
                         }
+                        end = mid - 1;
+                    } else {
+                        start = mid + 1;
                     }
                 }
-                //System.out.println(map);
-                for (int j : map.values()) {
-                    result += (long) j * (long) (j - 1) / 2L;
+                if (re != -1) {
+                    result += (long)i - (long)re + 1L;
                 }
-
             }
-//            long other = 0;
-//            for (int i = 0; i < n; i++) {
-//                for (int j = 0; j < n; j++) {
-//                    if (i != j) {
-//                        for (int k = j + 1; k < n; k++) {
-//                            if (i != k && j != k) {
-//                                long a = distSquare(data[i], data[j]);
-//                                long b = distSquare(data[i], data[k]);
-//                                if(a == b){
-//                                    other++;
-//                                }
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-            out.println("Case #" + (z + 1) + ": " + result );
+            out.println("Case #" + (z + 1) + ": " + result);
         }
         out.close();
-    }
-
-    static long distSquare(Point a, Point b) {
-        long X = a.x - b.x;
-        long Y = a.y - b.y;
-        return X * X + Y * Y;
     }
 
     public static int[] KMP(String val) {
@@ -240,8 +226,8 @@ public class A_FB_2016 {
 
         public Scanner() throws FileNotFoundException {
             // System.setOut(new PrintStream(new BufferedOutputStream(System.out), true));
-            // br = new BufferedReader(new InputStreamReader(System.in));
-            br = new BufferedReader(new InputStreamReader(new FileInputStream(new File("boomerang_constellations.txt"))));
+            //br = new BufferedReader(new InputStreamReader(System.in));
+            br = new BufferedReader(new InputStreamReader(new FileInputStream(new File("the_price_is_correct.txt"))));
         }
 
         public String next() {
