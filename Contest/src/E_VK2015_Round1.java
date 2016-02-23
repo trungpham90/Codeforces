@@ -5,36 +5,31 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.BitSet;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.PriorityQueue;
-import java.util.Random;
-import java.util.Scanner;
+import java.util.SortedSet;
 import java.util.Stack;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import java.lang.Long;
-import java.math.BigDecimal;
-import java.math.BigInteger;
 
 /**
- * Problem statement: http://codeforces.com/problemset/problem/431/D
+ * #
  * 
- * @author thepham
- * 
+ * @author pttrung
  */
-
 public class E_VK2015_Round1 {
-	static long Mod = 1000000007;
-	static int[][][] dp;
-	static int max = 100000;
+
+	public static long MOD = 1000000007;
 
 	public static void main(String[] args) throws FileNotFoundException {
 		// PrintWriter out = new PrintWriter(new FileOutputStream(new File(
@@ -42,93 +37,158 @@ public class E_VK2015_Round1 {
 		PrintWriter out = new PrintWriter(System.out);
 		Scanner in = new Scanner();
 		int n = in.nextInt();
-
+		int m = in.nextInt();
 		int k = in.nextInt();
-		int[] data = new int[n];
-		HashMap<Long, Integer> map = new HashMap();
-		for (int i = 0; i < n; i++) {
-			data[i] = in.nextInt();
-			for(int j = 1; j <= k; j++){
-				long v = data[i]*j;
-				if(!map.containsKey(v)){
-					map.put(v, j);
-				}else{
-					map.put(v,  Math.min(map.get(v), j));
-				}
-			}
-			
+		int h = in.nextInt();
+		Point[] data = new Point[k];
+		for (int i = 0; i < k; i++) {
+			data[i] = new Point(in.nextInt(), in.nextInt());
 		}
-		Arrays.sort(data);
-		int q = in.nextInt();
-		for (int i = 0; i < q; i++) {
-			int x = in.nextInt();
-			int min = Integer.MAX_VALUE;
-			for(long v : map.keySet()){
-				long left = x - v;
-				if(left == 0){
-					if(map.get(v) < min){
-						min = map.get(v);
-					}
-				}else if(map.containsKey(left)){
-					if(map.get(v) + map.get(left) < min){
-						min = map.get(v) + map.get(left);
-					}
-				}
+		Square[] q = new Square[h];
+		for (int i = 0; i < h; i++) {
+			q[i] = new Square(i, in.nextInt(), in.nextInt(), in.nextInt(),
+					in.nextInt());
+		}
+		Arrays.sort(q, new Comparator<Square>() {
+
+			@Override
+			public int compare(Square o1, Square o2) {
+				// TODO Auto-generated method stub
+				return Integer.compare(o1.x2, o2.x2);
 			}
-			if (min <= k) {
-				out.println(min);
+		});
+		Arrays.sort(data);
+	//	System.out.println(Arrays.toString(data));
+		boolean[] result = new boolean[h];
+		int[] tree = new int[4 * Math.max(n, m) + 10];
+		Arrays.fill(tree, -1);
+		int index = 0;
+		for (int i = 0; i < h; i++) {
+			while (index < k && data[index].x <= q[i].x2) {
+				update(0, data[index].y, data[index].x, 1, m, tree);
+				index++;
+			}
+			int v = get(0, q[i].y1, q[i].y2, 1, m, tree);
+			
+			if (v < q[i].x1) {
+
 			} else {
-				out.println(-1);
+				result[q[i].index] = true;
+			}
+
+		}
+		Arrays.sort(q, new Comparator<Square>() {
+
+			@Override
+			public int compare(Square o1, Square o2) {
+				// TODO Auto-generated method stub
+				return Integer.compare(o1.y2, o2.y2);
+			}
+		});
+		Arrays.sort(data, new Comparator<Point>() {
+
+			@Override
+			public int compare(Point o1, Point o2) {
+				// TODO Auto-generated method stub
+				return Integer.compare(o1.y, o2.y);
+			}
+		});
+
+		tree = new int[4 * Math.max(n, m) + 10];
+		Arrays.fill(tree, -1);
+		index = 0;
+		for (int i = 0; i < h; i++) {
+			while (index < k && data[index].y <= q[i].y2) {
+				update(0, data[index].x, data[index].y, 1, n, tree);
+				index++;
+			}
+			int v = get(0, q[i].x1, q[i].x2, 1, n, tree);
+//			System.out.println(v + " " + " " + q[i].x1 + " " + q[i].x2 + " "
+//					+ q[i].index);
+			if (v < q[i].y1) {
+
+			} else {
+				result[q[i].index] = true;
+			}
+		}
+		for (boolean v : result) {
+			if (v) {
+				out.println("YES");
+			} else {
+				out.println("NO");
 			}
 		}
 
 		out.close();
 	}
 
-	static long min(long a, long b) {
-		if (a > b) {
-			return b;
-		}
-		return a;
+	static int left(int index) {
+		return 2 * index + 1;
 	}
 
-	public static int[] buildKMP(String val) {
-		int[] data = new int[val.length() + 1];
+	static int right(int index) {
+		return 2 * index + 2;
+	}
+
+	static int get(int index, int l1, int r1, int l, int r, int[] tree) {
+		if (l > r1 || r < l1) {
+			return Integer.MAX_VALUE;
+		}
+		if (l1 <= l && r <= r1) {
+			return tree[index];
+		}
+		int mid = (l + r) >> 1;
+		int a = get(left(index), l1, r1, l, mid, tree);
+		int b = get(right(index), l1, r1, mid + 1, r, tree);
+
+		return Math.min(a, b);
+
+	}
+
+	static void update(int index, int p, int v, int l, int r, int[] tree) {
+		if (l > p || r < p) {
+			return;
+		}
+		if (l == p && r == p) {
+			tree[index] = v;
+			return;
+		}
+		int mid = (l + r) >> 1;
+		update(left(index), p, v, l, mid, tree);
+		update(right(index), p, v, mid + 1, r, tree);
+
+		tree[index] = Math.min(tree[left(index)], tree[right(index)]);
+
+	}
+
+	static class Square {
+		int index, x1, y1, x2, y2;
+
+		public Square(int index, int x1, int y1, int x2, int y2) {
+			super();
+			this.index = index;
+			this.x1 = x1;
+			this.y1 = y1;
+			this.x2 = x2;
+			this.y2 = y2;
+		}
+	}
+
+	public static int[] KMP(String val) {
 		int i = 0;
 		int j = -1;
-		data[0] = -1;
+		int[] result = new int[val.length() + 1];
+		result[0] = -1;
 		while (i < val.length()) {
-			while (j >= 0 && val.charAt(i) != val.charAt(j)) {
-				j = data[j];
+			while (j >= 0 && val.charAt(j) != val.charAt(i)) {
+				j = result[j];
 			}
-			i++;
 			j++;
-
-			data[i] = j;
-			// System.out.println(val + " " + i + " " + data[i]);
+			i++;
+			result[i] = j;
 		}
-		return data;
-	}
+		return result;
 
-	static int find(int index, int[] u) {
-		if (u[index] != index) {
-			return u[index] = find(u[index], u);
-		}
-		return index;
-	}
-
-	static int crossProduct(Point a, Point b) {
-		return a.x * b.y + a.y * b.x;
-	}
-
-	static long squareDist(Point a) {
-		long x = a.x;
-		long y = a.y;
-		return x * x + y * y;
-	}
-
-	static Point minus(Point a, Point b) {
-		return new Point(a.x - b.x, a.y - b.y);
 	}
 
 	public static boolean nextPer(int[] data) {
@@ -150,50 +210,115 @@ public class E_VK2015_Round1 {
 		return true;
 	}
 
-	static class Point {
-		int x, y;
-
-		public Point(int x, int y) {
-			super();
-			this.x = x;
-			this.y = y;
+	public static int digit(long n) {
+		int result = 0;
+		while (n > 0) {
+			n /= 10;
+			result++;
 		}
+		return result;
+	}
 
-		public String toString() {
-			return "{" + x + " " + y + "}";
-		}
+	public static double dist(long a, long b, long x, long y) {
+		double val = (b - a) * (b - a) + (x - y) * (x - y);
+		val = Math.sqrt(val);
+		double other = x * x + a * a;
+		other = Math.sqrt(other);
+		return val + other;
 
 	}
 
-	static long gcd(long a, long b) {
-		if (b == 0) {
-			return a;
+	public static class Point implements Comparable<Point> {
+
+		int x, y;
+
+		public Point(int start, int end) {
+			this.x = start;
+			this.y = end;
 		}
-		return gcd(b, a % b);
+
+		@Override
+		public int hashCode() {
+			int hash = 5;
+			hash = 47 * hash + this.x;
+			hash = 47 * hash + this.y;
+			return hash;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (obj == null) {
+				return false;
+			}
+			if (getClass() != obj.getClass()) {
+				return false;
+			}
+			final Point other = (Point) obj;
+			if (this.x != other.x) {
+				return false;
+			}
+			if (this.y != other.y) {
+				return false;
+			}
+			return true;
+		}
+
+		@Override
+		public String toString() {
+			return "Point [x=" + x + ", y=" + y + "]";
+		}
+
+		@Override
+		public int compareTo(Point o) {
+			return x - o.x;
+		}
 	}
 
 	public static class FT {
 
-		int[] data;
+		long[] data;
 
 		FT(int n) {
-			data = new int[n];
+			data = new long[n];
 		}
 
-		public void update(int index, int value) {
+		public void update(int index, long value) {
 			while (index < data.length) {
 				data[index] += value;
 				index += (index & (-index));
 			}
 		}
 
-		public int get(int index) {
-			int result = 0;
+		public long get(int index) {
+			long result = 0;
 			while (index > 0) {
 				result += data[index];
 				index -= (index & (-index));
 			}
 			return result;
+
+		}
+	}
+
+	public static long gcd(long a, long b) {
+		if (b == 0) {
+			return a;
+		}
+		return gcd(b, a % b);
+	}
+
+	public static long pow(long a, long b) {
+		if (b == 0) {
+			return 1;
+		}
+		if (b == 1) {
+			return a;
+		}
+		long val = pow(a, b / 2);
+		if (b % 2 == 0) {
+			return val * val % MOD;
+		} else {
+			return val * (val * a % MOD) % MOD;
 
 		}
 	}
@@ -208,8 +333,7 @@ public class E_VK2015_Round1 {
 			// BufferedOutputStream(System.out), true));
 			br = new BufferedReader(new InputStreamReader(System.in));
 			// br = new BufferedReader(new InputStreamReader(new
-			// FileInputStream(
-			// new File("input.txt"))));
+			// FileInputStream(new File("input.txt"))));
 		}
 
 		public String next() {
@@ -261,5 +385,4 @@ public class E_VK2015_Round1 {
 			}
 		}
 	}
-
 }
