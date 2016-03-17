@@ -29,121 +29,146 @@ import java.util.TreeSet;
  */
 public class D_Edu_Round_6 {
 
-    public static long MOD = 1000000007;  
+    public static long MOD = 1000000007;
 
     public static void main(String[] args) throws FileNotFoundException {
         // PrintWriter out = new PrintWriter(new FileOutputStream(new File(
         // "output.txt")));
         PrintWriter out = new PrintWriter(System.out);
-        Scanner in = new Scanner();   
+        Scanner in = new Scanner();
         int n = in.nextInt();
-        long[]a = new long[n];
+        long[] a = new long[n];
         long X = 0;
         long Y = 0;
-        for(int i = 0; i < n;i++){
+        for (int i = 0; i < n; i++) {
             a[i] = in.nextInt();
             X += a[i];
         }
         int m = in.nextInt();
-        long[]b = new long[n];
-        for(int i = 0; i < m; i++){
+        long[] b = new long[m];
+        for (int i = 0; i < m; i++) {
             b[i] = in.nextInt();
             Y += b[i];
         }
-        if(n == 1 || m == 1){
-            out.println((X > Y) ? X - Y : Y - X);
-            out.println(0);
-        }else{
-            TreeSet<State> set = new TreeSet();
-            long result = abs(Y - X);
-            Point x =  null;
-            Point y = null;
-            for(int i = 0; i < n; i++){
-                for(int j = 0; j < m; j++){
-                    set.add(new State( i, j, 2L*(b[j] - a[i])));
-                }   
-            }
-            TreeSet<State> pre = new TreeSet();
-            for(int i = 0; i < n; i++){
-                
-                for(int j = 0; j < m; j++){
-                    set.remove(new State(i , j , 2L*(b[j] - a[i])));
-                }
-                for(int j = 0; j < m; j++){
-                    long tmp = Y - X - 2L*(b[j] - a[i]);
-                    if(abs(tmp) < result){
-                        result =abs(tmp);
-                        x = new Point(i, j);
-                        y = null;
-                    }
-                    State c = set.floor(new State( n, m, tmp));
-                    if(c != null && abs(tmp - c.dif) < result){
-                        result = abs(tmp - c.dif);
-                        x = new Point(i, j);
-                        y = new Point(c.x, c.y);
-                    }
-                    c = set.ceiling(new State( -1, -1, tmp));
-                    if(c != null && abs(tmp - c.dif) < result){
-                        result = abs(tmp - c.dif);
-                        x = new Point(i, j);
-                        y = new Point(c.x, c.y);
-                    }
-                    c = pre.floor(new State( n, m, tmp));
-                    if(c != null && abs(tmp - c.dif) < result){
-                        result = abs(tmp - c.dif);
-                        x = new Point(i, j);
-                        y = new Point(c.x, c.y);
-                    }
-                    c = pre.ceiling(new State( -1, -1, tmp));
-                    if(c != null && abs(tmp - c.dif) < result){
-                        result = abs(tmp - c.dif);
-                        x = new Point(i, j);
-                        y = new Point(c.x, c.y);
-                    }
-                }
-                 for(int j = 0; j < m; j++){
-                    pre.add(new State(i , j , 2L*(b[j] - a[i])));
-                }
-            }
-            out.println(result);
-            if(x != null && y != null){
-                out.println(2);
-                out.println((x.x + 1) + " " + (x.y + 1));
-                out.println((y.x + 1) + " " + (y.y + 1));
-            }else if(x != null){
-                out.println(1);
-                out.println((x.x + 1) + " " + (x.y + 1));
-            }else{
-                out.println(0);
+
+        ArrayList<Long> list = new ArrayList();
+        for (int i = 0; i < n; i++) {
+            for (int j = i + 1; j < n; j++) {
+                list.add((a[i] + a[j]) << 1);
             }
         }
+        
+        Collections.sort(list);
+        long result = abs(X - Y);
+        int option = 0;
+        int x = -1, y = -1;
+        long need = -1;
+        for (int i = 0; i < m; i++) {
+            for (int j = i + 1; j < m; j++) {
+                long tmp = X - Y + 2 * (b[i] + b[j]);
+                long v = Long.MIN_VALUE;
+                int s = 0;
+                int e = list.size() - 1;
+                while (s <= e) {
+                    int mid = (s + e) >> 1;
+                    if (list.get(mid) <= tmp) {
+                        if (list.get(mid) > v) {
+                            v = list.get(mid);
+                        }
+                        s = mid + 1;
+                    } else {
+                        e = mid - 1;
+                    }
+                }
+                if (v != Long.MIN_VALUE) {
+                    if (abs(tmp - v) < result) {
+                        option = 2;
+                        x = i;
+                        y = j;
+                        need = v;
+                        result = abs(tmp - v);
+                    }
+
+                }
+                v = Long.MAX_VALUE;
+                s = 0;
+                e = list.size() - 1;
+                while (s <= e) {
+                    int mid = (s + e) >> 1;
+                    if (list.get(mid) >= tmp) {
+                        if (list.get(mid) < v) {
+                            v = list.get(mid);
+                        }
+                        e = mid - 1;
+                    } else {
+                        s = mid + 1;
+                    }
+                }
+                if (v != Long.MAX_VALUE) {
+                    if (abs(tmp - v) < result) {
+                        option = 2;
+                        x = i;
+                        y = j;
+                        need = v;
+                        result = abs(tmp - v);
+                    }
+
+                }
+
+            }
+        }
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < m; j++) {
+                long tmp = X - Y + 2 * (b[j] - a[i]);
+                if (abs(tmp) < result) {
+                    option = 1;
+                    x = i;
+                    y = j;
+                    result = abs(tmp);
+                }
+            }
+        }
+        out.println(result);
+        if (option == 0) {
+            out.println(0);
+        } else if (option == 1) {
+            out.println(1);
+            out.println((x + 1) + " " + (y + 1));
+        } else {
+            out.println(2);
+            int h = -1;
+            int k = -1;
+            for (int i = 0; i < n && h == -1; i++) {
+                for (int j = i + 1; j < n; j++) {
+                    if (a[i] + a[j] == need >> 1) {
+                        h = i;
+                        k = j;
+                        break;
+                    }
+                }
+            }
+            out.println((h + 1) + " " + (x + 1));
+            out.println((k + 1) + " " + (y + 1));
+        }
+
         out.close();
     }
-    
-    static long abs(long v){
-        return v > 0 ? v : -v;
-    }
-    
-    static class State implements Comparable<State>{
-        int x, y;
-        long dif;
 
-        public State(int x, int y, long dif) {
+    static class State {
+
+        int x, y;
+        long v;
+
+        public State(int x, int y, long v) {
             this.x = x;
             this.y = y;
-            this.dif = dif;
+            this.v = v;
         }
 
-        @Override
-        public int compareTo(State o) {
-            if(dif != o.dif){
-                return Long.compare(dif, o.dif);
-            }
-            if(x != o.x){
-                return Integer.compare(x, o.x);
-            }
-            return Integer.compare(y, o.y);
-        }
+    }
+
+    static long abs(long v) {
+        return v > 0 ? v : -v;
     }
 
     public static int[] KMP(String val) {
@@ -197,8 +222,6 @@ public class D_Edu_Round_6 {
         double other = x * x + a * a;
         other = Math.sqrt(other);
         return val + other;
-
-
 
     }
 
@@ -288,7 +311,6 @@ public class D_Edu_Round_6 {
             return val * val % MOD;
         } else {
             return val * (val * a % MOD) % MOD;
-
 
         }
     }
