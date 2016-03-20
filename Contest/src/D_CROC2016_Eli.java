@@ -30,7 +30,7 @@ import java.util.TreeSet;
 public class D_CROC2016_Eli {
 
     public static long MOD = 1000000007;
-
+    static int[]dp;
     public static void main(String[] args) throws FileNotFoundException {
         // PrintWriter out = new PrintWriter(new FileOutputStream(new File(
         // "output.txt")));
@@ -69,50 +69,36 @@ public class D_CROC2016_Eli {
 
             out.println(-1);
         } else {
-            PriorityQueue<Point> q = new PriorityQueue<>();
-            boolean[] check = new boolean[n];
-            int[] dist = new int[n];
-            int[] pa = new int[n];
-            int[] edge = new int[n];
-            pa[start] = start;
-            q.add(new Point(0, start));
-            dist[start] = 0;
-            while (!q.isEmpty()) {
-                Point p = q.poll();
-                if (dist[p.y] == p.x) {
-
-                    for (int i : map[p.y]) {
-                        if (dist[data[i]] > dist[p.y] - 1) {
-                            dist[data[i]] = dist[p.y] - 1;
-                            pa[data[i]] = p.y;
-                            edge[data[i]] = i;
-                            q.add(new Point(dist[data[i]], data[i]));
-                        }
-                    }
-                }
-            }
-            int end = -1;
-            for (int i = 0; i < n; i++) {
-
-                if (dist[i] == 1 - n) {
-                    end = i;
-                    break;
-                }
-            }
-            if (end == -1) {
-                out.println(-1);
-            } else {
-
-                int result = 0;
-                while (end != start) {
-                    result = Math.max(result, edge[end] + 1);
-                    end = pa[end];
-                }
-                out.println(result);
-            }
+          int result = 0;          
+          int c = 0;
+          while(ok && start != -1){
+              c++;
+              int nxt = -1;
+              for(int i : map[start]){
+                  greater[data[i]]--;
+                  if(greater[data[i]] == 0){
+                      if(nxt == -1){
+                          result = Integer.max(result, i + 1);
+                          nxt = data[i];                          
+                      }else{
+                          ok = false;
+                          break;
+                      }
+                  }
+              }
+              start = nxt;       
+              
+          }
+          if(!ok || c != n){
+              out.println(-1);
+          }else{
+              out.println(result);
+          }
+          
         }
         out.close();
     }
+   
 
     public static int[] KMP(String val) {
         int i = 0;
