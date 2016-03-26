@@ -36,11 +36,11 @@ public class A_Edu_Round_10 {
         // "output.txt")));
         PrintWriter out = new PrintWriter(System.out);
         Scanner in = new Scanner();
-        int h1 = in.nextInt();
-        int h2 = in.nextInt();
-        int a = in.nextInt();
-        int b = in.nextInt();
-        int dif = h2 - h1;
+        long h1 = in.nextInt();
+        long h2 = in.nextInt();
+        long a = in.nextInt();
+        long b = in.nextInt();
+        long dif = h2 - h1;
         boolean ok = false;
         for (int i = 0; i < dif; i++) {
             if (i == 0) {
