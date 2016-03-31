@@ -132,7 +132,7 @@ public class $ {
 
         @Override
         public int compareTo(Point o) {
-            return x - o.x;
+            return Integer.compare(x, o.x);
         }
     }
 
