@@ -39,46 +39,68 @@ public class rectbarn {
 		int r = in.nextInt();
 		int c = in.nextInt();
 		int p = in.nextInt();
-		Point[] data = new Point[p + r];
+		short[][] data = new short[p + r][2];
 		for (int i = 0; i < p; i++) {
-			data[i] = new Point(in.nextInt() - 1, in.nextInt() - 1);
+			data[i] = new short[] { (short) (in.nextInt() - 1),
+					(short) (in.nextInt() - 1) };
 		}
 		for (int i = p; i < p + r; i++) {
-			data[i] = new Point(i - p, -1);
+			data[i] = new short[] { (short) (i - p), (short) (-1) };
 		}
-		TreeSet<Integer>[] col = new TreeSet[c];
-		for (int i = 0; i < c; i++) {
-			col[i] = new TreeSet();
-
+		short[][] up = new short[c][r];
+		short[][] down = new short[c][r];
+		for (short[] a : up) {
+			Arrays.fill(a, (short) -1);
+		}
+		for (short[] a : down) {
+			Arrays.fill(a, (short) -1);
 		}
 		for (int i = 0; i < p; i++) {
-			col[data[i].y].add(data[i].x);
+
+			up[data[i][1]][data[i][0]] = (short) data[i][0];
+			down[data[i][1]][data[i][0]] = (short) data[i][0];
 		}
-		out.println(cal(r, c, data, col));
+		for (int i = 0; i < c; i++) {
+			short re = -1;
+			for (int j = 0; j < r; j++) {
+				if (up[i][j] != j) {
+					up[i][j] = re;
+				}
+				re = up[i][j];
+			}
+			re = -1;
+			for (int j = r - 1; j >= 0; j--) {
+				if (down[i][j] != j) {
+					down[i][j] = re;
+				}
+				re = down[i][j];
+			}
+		}
+		out.println(cal(r, c, data, up, down));
 		out.close();
 	}
 
-	static int cal(int r, int c, Point[] data, TreeSet<Integer>[] col) {
+	static int cal(int r, int c, short[][] data, short[][] up, short[][] down) {
 		int result = 0;
-		for (Point p : data) {
+		for (short[] p : data) {
 			int t = -1;
 			int d = -1;
 
 			boolean stop = false;
-			for (int i = p.y + 1; i < c; i++) {
-				// System.out.println(p.x + " " + p.y + " " + t + " " + d + " "
-				// + i + " " + result);
-				Integer a = col[i].floor(p.x);
-				Integer b = col[i].ceiling(p.x);
+			for (int i = p[1] + 1; i < c; i++) {
 
+				int a = up[i][p[0]];
+				int b = down[i][p[0]];
+				// System.out.println(p.x + " " + p.y + " " + t + " " + d + " "
+				// + i + " " + result + " " + a + " " + b);
 				if (t != -1 && d != -1) {
 
-					if (a != null && b != null) {
+					if (a != -1 && b != -1) {
 
 						if (a > t || b < d) {
-							int l = i - p.y - 1;
+							int l = i - p[1] - 1;
 							result = Math.max(result, l * (d - t - 1));
-							if (a == p.x) {
+							if (a == p[0]) {
 								stop = true;
 								break;
 							} else {
@@ -86,75 +108,75 @@ public class rectbarn {
 								d = Math.min(d, b);
 							}
 						}
-					} else if (a != null && a > t) {
-						int l = i - p.y - 1;
+					} else if (a != -1 && a > t) {
+						int l = i - p[1] - 1;
 						result = Math.max(result, l * (d - t - 1));
 
 						t = a;
-					} else if (b != null && b < d) {
-						int l = i - p.y - 1;
+					} else if (b != -1 && b < d) {
+						int l = i - p[1] - 1;
 						result = Math.max(result, l * (d - t - 1));
 						d = b;
 					}
 				} else if (d != -1) {
-					if (a != null && b != null) {
-						int l = i - p.y - 1;
+					if (a != -1 && b != -1) {
+						int l = i - p[1] - 1;
 						result = Math.max(result, l * d);
-						if (a == p.x) {
+						if (a == p[0]) {
 							stop = true;
 							break;
 						} else {
 							t = a;
 							d = Math.min(d, b);
 						}
-					} else if (a != null) {
-						int l = i - p.y - 1;
+					} else if (a != -1) {
+						int l = i - p[1] - 1;
 						result = Math.max(result, l * d);
 						t = a;
-					} else if (b != null && b < d) {
-						int l = i - p.y - 1;
+					} else if (b != -1 && b < d) {
+						int l = i - p[1] - 1;
 						result = Math.max(result, l * d);
 						d = b;
 					}
 				} else if (t != -1) {
-					if (a != null && b != null) {
-						int l = i - p.y - 1;
+					if (a != -1 && b != -1) {
+						int l = i - p[1] - 1;
 						result = Math.max(result, l * (r - t - 1));
-						if (a == p.x) {
+						if (a == p[0]) {
 							stop = true;
 							break;
 						} else {
 							t = Math.max(a, t);
 							d = b;
 						}
-					} else if (a != null && a > t) {
-						int l = i - p.y - 1;
+					} else if (a != -1 && a > t) {
+						int l = i - p[1] - 1;
 						result = Math.max(result, l * (r - t - 1));
 
 						t = a;
-					} else if (b != null) {
-						int l = i - p.y - 1;
+					} else if (b != -1) {
+						int l = i - p[1] - 1;
 						result = Math.max(result, l * (r - t - 1));
 						d = b;
 					}
 				} else {
 
-					if (a != null && b != null) {
-						int l = i - p.y - 1;
+					if (a != -1 && b != -1) {
+						int l = i - p[1] - 1;
 						result = Math.max(result, l * r);
-						if (a == p.x) {
+						if (a == p[0]) {
 							stop = true;
 							break;
 						} else {
 							t = a;
 							d = b;
 						}
-					} else if (a != null) {
-						int l = i - p.y - 1;
+					} else if (a != -1) {
+						int l = i - p[1] - 1;
 						result = Math.max(result, l * r);
 						t = a;
-					} else if (b != null) {
-						int l = i - p.y - 1;
+					} else if (b != -1) {
+						int l = i - p[1] - 1;
 						result = Math.max(result, l * r);
 						d = b;
 					}
@@ -163,7 +185,7 @@ public class rectbarn {
 
 			}
 			if (!stop) {
-				int l = c - p.y - 1;
+				int l = c - p[1] - 1;
 				if (t != -1 && d != -1) {
 					result = Math.max(result, l * (d - t - 1));
 				} else if (d != -1) {
