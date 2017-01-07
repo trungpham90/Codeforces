@@ -27,58 +27,61 @@ import java.util.TreeSet;
  * #
  * @author pttrung
  */
-public class TowerBreakersRevisited {
+public class TowerBreakersAgain {
 
-    public static long MOD = 1000000007;  
-    static int[]dp;
+    public static long MOD = 1000000007;
+    static int[] dp;
+
     public static void main(String[] args) throws FileNotFoundException {
         // PrintWriter out = new PrintWriter(new FileOutputStream(new File(
         // "output.txt")));
         PrintWriter out = new PrintWriter(System.out);
-        Scanner in = new Scanner();        
+        Scanner in = new Scanner();
         dp = new int[1000001];
-        Arrays.fill(dp,-1);
+        Arrays.fill(dp, -1);
         int T = in.nextInt();
-        for(int z = 0; z < T; z++){
+        for (int z = 0; z < T; z++) {
             int n = in.nextInt();
             int v = 0;
-            
-            for(int i = 0; i < n; i++){
-                int tmp = in.nextInt();                               
+
+            for (int i = 0; i < n; i++) {
+                int tmp = in.nextInt();
                 v ^= cal(tmp);
-            }            
-            if(v != 0){
+            }
+            if (v != 0) {
                 out.println(1);
-            }else{
+            } else {
                 out.println(2);
             }
         }
         out.close();
     }
-    
-    static int cal(int n){
-        if(n == 1){
+
+    static int cal(int n) {
+        if (n == 1) {
             return 0;
         }
-        if(dp[n] != -1){
+        if (dp[n] != -1) {
             return dp[n];
         }
         HashSet<Integer> set = new HashSet();
-        
-        for(int i = 2; i*i <= n; i++){
-            if(n % i == 0){
-                set.add(cal(i));
-                set.add(cal(n / i));
+
+        for (int i = 2; i * i <= n; i++) {
+            if (n % i == 0) {
+                if ((n / i) % 2 != 0) {
+                    set.add(cal(i));
+                }
+                if (i % 2 != 0) {
+                    set.add(cal(n / i));
+                }
             }
         }
         int re = 1;
-        while(set.contains(re)){
+        while (set.contains(re)) {
             re++;
         }
         return dp[n] = re;
     }
-    
-    
 
     public static int[] KMP(String val) {
         int i = 0;
@@ -131,8 +134,6 @@ public class TowerBreakersRevisited {
         double other = x * x + a * a;
         other = Math.sqrt(other);
         return val + other;
-
-
 
     }
 
@@ -222,7 +223,6 @@ public class TowerBreakersRevisited {
             return val * val % MOD;
         } else {
             return val * (val * a % MOD) % MOD;
-
 
         }
     }

@@ -27,58 +27,44 @@ import java.util.TreeSet;
  * #
  * @author pttrung
  */
-public class TowerBreakersRevisited {
+public class TheCoinChangeProblem {
 
-    public static long MOD = 1000000007;  
-    static int[]dp;
+    public static long MOD = 1000000007;
+    static long[][] dp;
+
     public static void main(String[] args) throws FileNotFoundException {
         // PrintWriter out = new PrintWriter(new FileOutputStream(new File(
         // "output.txt")));
         PrintWriter out = new PrintWriter(System.out);
-        Scanner in = new Scanner();        
-        dp = new int[1000001];
-        Arrays.fill(dp,-1);
-        int T = in.nextInt();
-        for(int z = 0; z < T; z++){
-            int n = in.nextInt();
-            int v = 0;
-            
-            for(int i = 0; i < n; i++){
-                int tmp = in.nextInt();                               
-                v ^= cal(tmp);
-            }            
-            if(v != 0){
-                out.println(1);
-            }else{
-                out.println(2);
-            }
+        Scanner in = new Scanner();
+        int n = in.nextInt();
+        int m = in.nextInt();
+        dp = new long[m][n + 1];
+        for (long[] a : dp) {
+            Arrays.fill(a, -1);
         }
+        int[] data = new int[m];
+        for (int i = 0; i < m; i++) {
+            data[i] = in.nextInt();
+        }
+        Arrays.sort(data);
+        out.println(cal(n, 0, data));
         out.close();
     }
-    
-    static int cal(int n){
-        if(n == 1){
-            return 0;
+
+    static long cal(int left, int index, int[] data) {
+        if (left == 0) {
+            return 1;
         }
-        if(dp[n] != -1){
-            return dp[n];
+        if (dp[index][left] != -1) {
+            return dp[index][left];
         }
-        HashSet<Integer> set = new HashSet();
-        
-        for(int i = 2; i*i <= n; i++){
-            if(n % i == 0){
-                set.add(cal(i));
-                set.add(cal(n / i));
-            }
+        long result = 0;
+        for (int i = index; i < data.length && left >= data[i]; i++) {
+            result += cal(left - data[i], i, data);
         }
-        int re = 1;
-        while(set.contains(re)){
-            re++;
-        }
-        return dp[n] = re;
+        return dp[index][left] = result;
     }
-    
-    
 
     public static int[] KMP(String val) {
         int i = 0;
@@ -131,8 +117,6 @@ public class TowerBreakersRevisited {
         double other = x * x + a * a;
         other = Math.sqrt(other);
         return val + other;
-
-
 
     }
 
@@ -222,7 +206,6 @@ public class TowerBreakersRevisited {
             return val * val % MOD;
         } else {
             return val * (val * a % MOD) % MOD;
-
 
         }
     }
