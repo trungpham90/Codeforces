@@ -20,67 +20,38 @@ import java.util.PriorityQueue;
 import java.util.SortedSet;
 import java.util.Stack;
 import java.util.StringTokenizer;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 
 /**
  * #
  * 
  * @author pttrung
  */
-public class D_Round_404_Div2 {
+public class B_Round_411_Div1 {
 
 	public static long MOD = 1000000007;
-	static volatile LinkedList<Integer> q = new LinkedList<>();
-	static int time = 0;
 
-	public static void main(String[] args) throws FileNotFoundException, InterruptedException, ExecutionException {
+	public static void main(String[] args) throws FileNotFoundException {
 		// PrintWriter out = new PrintWriter(new FileOutputStream(new File(
 		// "output.txt")));
 		PrintWriter out = new PrintWriter(System.out);
 		Scanner in = new Scanner();
 		String line = in.next();
-		int close = 0;
-		for (int i = 0; i < line.length(); i++) {
-			if (line.charAt(i) == ')') {
-				close++;
-			}
-		}
-		int n = line.length() + 1;
-		long[] pre = new long[n];
-		pre[0] = 1;
-		for (int i = 1; i < n; i++) {
-			pre[i] = i * pre[i - 1];
-			pre[i] %= MOD;
-		}
-		int open = 0;
 		long result = 0;
-		for (int i = 0; i < line.length(); i++) {
-			if (line.charAt(i) == '(') {
-				open++;
-				if (close > 0) {
-					long tmp = pre[open + close - 1];
-					tmp *= pow(pre[open], MOD - 2);
-					tmp %= MOD;
-					tmp *= pow(pre[close - 1], MOD - 2);
-					tmp %= MOD;
-					result += tmp;
-					result %= MOD;
-				}
+		long count = 0;
+		for (int i = line.length() - 1; i >= 0; i--) {
+			if (line.charAt(i) == 'b') {
+				count++;
+				count %= MOD;
 			} else {
-				close--;
+				result += count;
+				result %= MOD;
+				count *= 2;
+				count %= MOD;
 			}
-
 		}
 		out.println(result);
-
 		out.close();
 	}
 
