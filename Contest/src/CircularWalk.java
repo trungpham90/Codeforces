@@ -24,10 +24,10 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 /**
- *
+ * #
  * @author pttrung
  */
-public class C_Round_407_Div1 {
+public class CircularWalk {
 
     public static long MOD = 1000000007;
 
@@ -37,47 +37,59 @@ public class C_Round_407_Div1 {
         PrintWriter out = new PrintWriter(System.out);
         Scanner in = new Scanner();
         int n = in.nextInt();
-        int k = in.nextInt();
-        HashSet<Integer> set = new HashSet();
-        boolean neg = false;
-        boolean pos = false;
-        boolean zero = false;
+        int s = in.nextInt();
+        int t = in.nextInt();
+        if (s == t) {
+            out.println(0);
+        } else {
 
-        for (int i = 0; i < k; i++) {
-            int v = in.nextInt() - n;
-            set.add(v);
-            neg |= v < 0;
-            pos |= v > 0;
-            zero |= v == 0;
-        }
-        if (zero) {
-            out.println(1);
-        } else if (neg && pos) {
-            LinkedList<Integer> q = new LinkedList<>();
-            HashMap<Integer, Integer> dist = new HashMap<>();
-            dist.put(0, 0);
-            q.add(0);
-            int result = -1;
-            while (!q.isEmpty() && result == -1) {
-                int v = q.poll();
-                int d = dist.get(v);
-                for (int j : set) {
-                    int tmp = v + j;
-                    if (tmp == 0) {
-                        result = 1 + d;
+
+
+            long[] data = new long[n];
+            data[0] = in.nextInt();
+            long g = in.nextInt();
+            long seed = in.nextInt();
+            long p = in.nextInt();
+            for (int i = 1; i < n; i++) {
+                long v = ((data[i - 1] * g) + seed) % p;
+
+                data[i] = v;
+            }
+            if (data[s] != 0) {
+
+                int[] d = new int[n];
+                Arrays.fill(d, -1);
+                d[s] = 0;
+                LinkedList<Integer> q = new LinkedList();
+                q.add(s);
+                while (!q.isEmpty() && d[t] == -1) {
+                    int node = q.poll();
+                    if((t - node + n) % n <= data[node] || (node - t + n) % n <= data[node]){
+                        d[t] = 1 + d[node];
                         break;
                     }
-                    if (tmp <= 1000 && tmp >= -1000) {
-                        if (!dist.containsKey(tmp)) {
-                            dist.put(tmp, 1 + d);
-                            q.add(tmp);
+                    for (int i = (int) data[node]; i > 0; i--) {
+                        if (d[(node + i) % n] == -1) {
+                            q.add((node + i) % n);
+                            d[(node + i) % n] = 1 + d[node];
+                        } else {
+                            break;
+                        }
+                    }
+                    for (int i = (int) data[node]; i > 0; i--) {
+                        if (d[(node - i + n) % n] == -1) {
+                            q.add((node - i + n) % n);
+                            d[(node - i + n) % n] = 1 + d[node];
+                        } else {
+                            break;
                         }
                     }
                 }
+                
+                out.println(d[t]);
+            } else {
+                out.println(-1);
             }
-            out.println(result);
-        } else {
-            out.println(-1);
         }
         out.close();
     }
@@ -210,14 +222,14 @@ public class C_Round_407_Div1 {
         return gcd(b, a % b);
     }
 
-    public static long pow(long a, long b) {
+    public static long pow(long a, long b, long MOD) {
         if (b == 0) {
             return 1;
         }
         if (b == 1) {
             return a;
         }
-        long val = pow(a, b / 2);
+        long val = pow(a, b / 2, MOD);
         if (b % 2 == 0) {
             return val * val % MOD;
         } else {
@@ -232,11 +244,9 @@ public class C_Round_407_Div1 {
         StringTokenizer st;
 
         public Scanner() throws FileNotFoundException {
-            // System.setOut(new PrintStream(new
-            // BufferedOutputStream(System.out), true));
+            // System.setOut(new PrintStream(new BufferedOutputStream(System.out), true));
             br = new BufferedReader(new InputStreamReader(System.in));
-            // br = new BufferedReader(new InputStreamReader(new
-            // FileInputStream(new File("input.txt"))));
+            //  br = new BufferedReader(new InputStreamReader(new FileInputStream(new File("input.txt"))));
         }
 
         public String next() {
@@ -288,5 +298,4 @@ public class C_Round_407_Div1 {
             }
         }
     }
-
 }
